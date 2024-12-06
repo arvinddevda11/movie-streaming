@@ -182,7 +182,7 @@ const MovieList = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/movies")
+    fetch("https://movie-streaming-120a.onrender.com/movies")
       .then((response) => response.json())
       .then((data) => {
         setIsLoading(false)
@@ -291,7 +291,7 @@ const MovieUploadForm = () => {
     formData.append("image", image[0]);
     formData.append("video", video[0]);
 
-    fetch("/insert-movie", {
+    fetch("https://movie-streaming-120a.onrender.com/insert-movie", {
       method: "POST",
       body: formData,
     }).then(() => {
@@ -350,7 +350,7 @@ const SignIn = () => {
 
     setIsLoading(true)
 
-    fetch("/signin", {
+    fetch("https://movie-streaming-120a.onrender.com/signin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: signinEmail, password: signinPassword }),
@@ -414,7 +414,7 @@ const SignUp = () => {
   const handleSignupClick = (e) => {
     e.preventDefault();
     setIsLoading(true)
-    fetch("/signup", {
+    fetch("https://movie-streaming-120a.onrender.com/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, password }),
@@ -433,7 +433,7 @@ const SignUp = () => {
     e.preventDefault();
     setIsLoading(true)
 
-    fetch("/verifyOtp", {
+    fetch("https://movie-streaming-120a.onrender.com/verifyOtp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
