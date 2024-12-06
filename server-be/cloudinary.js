@@ -1,9 +1,10 @@
+const dotenv = require('dotenv').config()
 const { v2: cloudinary } = require('cloudinary')
 
 cloudinary.config({ 
-    cloud_name: process.env.cloud_name, 
-    api_key: process.env.api_secret , 
-    api_secret: process.env.api_secret // Click 'View API Keys' above to copy your API secret
+    cloud_name: process.env.CLOUD_NAME, 
+    api_key: process.env.API_KEY , 
+    api_secret: process.env.API_SECRET // Click 'View API Keys' above to copy your API secret
 });
 
 async function uploadFile(bufferData, options = {}){
