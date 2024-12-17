@@ -1,26 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useNavigate,
   useLocation,
+  Navigate
 } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "./App.css";
-// import { jwtDecode } from "jwt-decode";
 
-function App() {    
-
+function App() {
   return (
     <div className="App">
       <Router>
-        <Header />
+        <Header/> 
         <Routes>
-          <Route exact path="/creator" element={<MovieUploadForm />} />
           <Route exact path="/" element={<MovieList />} />
-          <Route exact path="/signin" element={<SignIn />} />
           <Route exact path="/signup" element={<SignUp />} />
+          <Route exact path="/signin" element={<SignIn />} />
+          <Route exact path="/creator" element={<MovieUploadForm />} />
           <Route exact path="/movie" element={<MoviePlay />} />
         </Routes>
       </Router>
@@ -28,21 +27,23 @@ function App() {
   );
 }
 
-
 const MoviePlay = () => {
-
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false)
+  const [isPlaybackReady, setIsPlaybackReady] = useState(false)
+  const videoElementRef = useRef('')
+  const userExists = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : "";
+  
 
   const playVideo = async (movieUrl, videoElement) => {
     const urls = movieUrl.split(",");
-    console.log("Attempting to play video with raw chunks:", urls);
-
+    console.log("Attempting to play video with raw chunks:", urls, videoElement);
     if (urls.length === 0) {
       alert("No valid video chunks found.");
       return;
     }
-
     try {
       setIsLoading(true)
       // Fetch all chunks as binary data
@@ -60,52 +61,47 @@ const MoviePlay = () => {
           }
         })
       );
-
       console.log("All chunks fetched. Concatenating chunks...");
       // Concatenate all chunks into a single Blob
       const combinedBlob = new Blob(chunkBlobs, { type: "video/mp4" });
-
       // Create a URL for the concatenated Blob and set it as the video source
       const videoUrl = URL.createObjectURL(combinedBlob);
       videoElement.src = videoUrl;
       videoElement.controls = true;
-
-
       setIsLoading(false)
       // Play the video
+      setIsPlaybackReady(true)
       videoElement
         .play()
         .catch((err) => console.error("Video playback failed:", err));
     } catch (error) {
       setIsLoading(false)
-
       console.error("Error during video playback:", error);
       alert("Video playback failed.");
     }
   };
 
-
-  // console.log({localtion});
-
-
   return (
     <div className="movie-play-card">
-      Playing movie
-
-      {/* { isLoading ? <Loader/> :  */}
-
-      <video
-        className="video"
-        poster={''}
-        onClick={(e) => playVideo(location.state, e.target)}
-      />
-      {/* } */}
+      {userExists ? <div className="video-elem" onClick={(e) => isPlaybackReady ? '' : playVideo(location.state.movieUrl, videoElementRef.current)}>
+        <video
+          className="video"
+          poster={isPlaybackReady ? "" : location.state.thumbnailUrl}
+          controls={isPlaybackReady}
+          ref={videoElementRef}
+        />
+        {isLoading ? <Loader /> : isPlaybackReady ? <></> : <button
+          className="watch-now-button"
+        >
+          Play Video
+        </button>}
+      </div> : <Navigate to={'/'}/>}
     </div>
   )
 }
 
 const Loader = () => {
-  return <span class="loader"></span>
+  return <span className="loader"></span>
 }
 
 const Header = () => {
@@ -176,10 +172,10 @@ const UserInfo = ({ userInfo }) => {
 const MovieList = () => {
   const navigate = useNavigate();
   const [apiData, setApiData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true)
   const userExists = localStorage.getItem("user")
     ? JSON.parse(localStorage.getItem("user"))
     : "";
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     fetch("https://movie-streaming-120a.onrender.com/movies")
@@ -190,56 +186,9 @@ const MovieList = () => {
       });
   }, []);
 
-  const playVideo = async (movieUrl, videoElement) => {
-    const urls = movieUrl.split(",");
-    console.log("Attempting to play video with raw chunks:", urls);
-
-    if (urls.length === 0) {
-      alert("No valid video chunks found.");
-      return;
-    }
-
-    try {
-      // Fetch all chunks as binary data
-      const chunkBlobs = await Promise.all(
-        urls.map(async (url, index) => {
-          try {
-            console.log(`Fetching chunk ${index + 1}: ${url}`);
-            const response = await fetch(url);
-            if (!response.ok)
-              throw new Error(`Failed to fetch chunk ${index + 1}`);
-            return await response.blob(); // Convert chunk to Blob
-          } catch (error) {
-            console.error(`Error fetching chunk ${index + 1}:`, error);
-            throw error;
-          }
-        })
-      );
-
-      console.log("All chunks fetched. Concatenating chunks...");
-      // Concatenate all chunks into a single Blob
-      const combinedBlob = new Blob(chunkBlobs, { type: "video/mp4" });
-
-      // Create a URL for the concatenated Blob and set it as the video source
-      const videoUrl = URL.createObjectURL(combinedBlob);
-      videoElement.src = videoUrl;
-      videoElement.controls = true;
-
-      // Play the video
-      videoElement
-        .play()
-        .catch((err) => console.error("Video playback failed:", err));
-    } catch (error) {
-
-      console.error("Error during video playback:", error);
-      alert("Video playback failed.");
-    }
-  };
-
   return (
     // <Loader />
     <div className="movie-list">
-      <Loader />
       {isLoading ?
 
         <Loader /> :
@@ -258,7 +207,7 @@ const MovieList = () => {
               {/* {!userExists && ( */}
               <button
                 className="watch-now-button"
-                onClick={() => navigate("/movie", { state: data.movieUrl })}
+                onClick={() => userExists ? navigate("/movie", { state: data }) : navigate("/signin")}
               >
                 Watch Now
               </button>
@@ -278,9 +227,12 @@ const MovieUploadForm = () => {
   const [movieDescription, setMovieDescription] = useState("");
   const [image, setImage] = useState(null);
   const [video, setVideo] = useState(null);
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false)
+  const userExists = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : "";
 
+  const navigate = useNavigate();
 
   const submitMovieData = (e) => {
     e.preventDefault();
@@ -295,47 +247,49 @@ const MovieUploadForm = () => {
       method: "POST",
       body: formData,
     }).then(() => {
-      setIsLoading(true)
+      setIsLoading(false)
       navigate("/")
     });
   };
 
   return (
-    <div className="upload-page">
-     {isLoading
-     ?<Loader/>
-      :<form className="upload-form">
-        <h1>Upload a Movie</h1>
-        <input
-          value={movieName}
-          onChange={(e) => setMovieName(e.target.value)}
-          type="text"
-          placeholder="Enter movie name"
-          className="input-field"
-        />
-        <input
-          value={movieDescription}
-          onChange={(e) => setMovieDescription(e.target.value)}
-          type="text"
-          placeholder="Enter movie description"
-          className="input-field"
-        />
-        <input
-          onChange={(e) => setImage(e.target.files)}
-          type="file"
-          className="file-input"
-        />
-        <input
-          onChange={(e) => setVideo(e.target.files)}
-          type="file"
-          className="file-input"
-        />
-        <button onClick={submitMovieData} className="submit-button">
-          Submit
-        </button>
-      </form>
+    <>
+    {userExists ? <div className="upload-page">
+      {isLoading
+        ? <Loader />
+        : <form className="upload-form">
+          <h1>Upload a Movie</h1>
+          <input
+            value={movieName}
+            onChange={(e) => setMovieName(e.target.value)}
+            type="text"
+            placeholder="Enter movie name"
+            className="input-field"
+            />
+          <input
+            value={movieDescription}
+            onChange={(e) => setMovieDescription(e.target.value)}
+            type="text"
+            placeholder="Enter movie description"
+            className="input-field"
+            />
+          <input
+            onChange={(e) => setImage(e.target.files)}
+            type="file"
+            className="file-input"
+            />
+          <input
+            onChange={(e) => setVideo(e.target.files)}
+            type="file"
+            className="file-input"
+            />
+          <button onClick={submitMovieData} className="submit-button">
+            Submit
+          </button>
+        </form>
       }
-    </div>
+    </div> : <Navigate to={'/'}/>}
+    </>
   );
 };
 
@@ -357,7 +311,6 @@ const SignIn = () => {
     })
       .then((resp) => resp.json())
       .then((jsonResp) => {
-
         if (jsonResp.token) {
           localStorage.setItem("user", JSON.stringify(jsonResp.token));
           setIsLoading(false)
@@ -409,7 +362,7 @@ const SignUp = () => {
   const [otp, setOtp] = useState();
   const navigate = useNavigate();
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSignupClick = (e) => {
     e.preventDefault();
@@ -432,7 +385,6 @@ const SignUp = () => {
   const handleVerifyClick = async (e) => {
     e.preventDefault();
     setIsLoading(true)
-
     fetch("https://movie-streaming-120a.onrender.com/verifyOtp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -445,6 +397,8 @@ const SignUp = () => {
           setIsLoading(false)
           navigate("/");
         }
+        setIsLoading(false)
+
       });
   };
 
@@ -453,7 +407,6 @@ const SignUp = () => {
       {
         isLoading
           ? <Loader />
-
           : <form className="auth-form signup-form">
             <h2>Sign Up</h2>
             <input
@@ -495,8 +448,8 @@ const SignUp = () => {
               </>
             )}
           </form>
-
       }
+
     </div>
   );
 };
