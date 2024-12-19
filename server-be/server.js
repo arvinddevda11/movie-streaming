@@ -20,6 +20,11 @@ server.use(cors());
 server.use(express.json());
 server.use(fileUploadMiddleWare());
 
+server.get("/movies", async (req, res, next) => {
+  const movieData = await Movie.find();
+  res.status(200).json({ data: movieData });
+});
+
 server.post("/signup", async (request, response, next) => {
   try {
     const { username, email, password } = request.body;
@@ -178,11 +183,6 @@ server.post("/insert-movie", async (request, response, next) => {
       .status(500)
       .json({ message: "Internal server error.", error: error.message });
   }
-});
-
-server.get("/movies", async (req, res, next) => {
-  const movieData = await Movie.find();
-  res.status(200).json({ data: movieData });
 });
 
 server.post("/verifyOtp", async (req, res, next) => {

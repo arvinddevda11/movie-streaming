@@ -293,68 +293,6 @@ const MovieUploadForm = () => {
   );
 };
 
-const SignIn = () => {
-  const [signinEmail, setSigninEmail] = useState("");
-  const [signinPassword, setSigninPassword] = useState("");
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false)
-
-  const handleLoginClick = (e) => {
-    e.preventDefault();
-
-    setIsLoading(true)
-
-    fetch("https://movie-streaming-120a.onrender.com/signin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: signinEmail, password: signinPassword }),
-    })
-      .then((resp) => resp.json())
-      .then((jsonResp) => {
-        if (jsonResp.token) {
-          localStorage.setItem("user", JSON.stringify(jsonResp.token));
-          setIsLoading(false)
-          navigate("/");
-        }
-        setIsLoading(false)
-
-      });
-  };
-
-  return (
-    <div className="auth-page">
-      {isLoading
-        ? <Loader />
-        : <form className="auth-form login-form">
-          <h2>Login</h2>
-          <input
-            value={signinEmail}
-            onChange={(e) => setSigninEmail(e.target.value)}
-            type="text"
-            placeholder="Email"
-            className="input-field"
-          />
-          <input
-            value={signinPassword}
-            onChange={(e) => setSigninPassword(e.target.value)}
-            type="password"
-            placeholder="Password"
-            className="input-field"
-          />
-          <button onClick={handleLoginClick} className="auth-button">
-            {
-              isLoading ? 'Loading....' : 'Login'
-            }
-          </button>
-          <button type="button" onClick={() => navigate("/signup")}>
-            Sign Up
-          </button>
-        </form>
-      }
-    </div>
-  );
-};
-
 const SignUp = () => {
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -450,6 +388,68 @@ const SignUp = () => {
           </form>
       }
 
+    </div>
+  );
+};
+
+const SignIn = () => {
+  const [signinEmail, setSigninEmail] = useState("");
+  const [signinPassword, setSigninPassword] = useState("");
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleLoginClick = (e) => {
+    e.preventDefault();  
+
+    setIsLoading(true)
+
+    fetch("https://movie-streaming-120a.onrender.com/signin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: signinEmail, password: signinPassword }),
+    })
+      .then((resp) => resp.json())
+      .then((jsonResp) => {
+        if (jsonResp.token) {
+          localStorage.setItem("user", JSON.stringify(jsonResp.token));
+          setIsLoading(false)
+          navigate("/");
+        }
+        setIsLoading(false)
+
+      });
+  };
+
+  return (
+    <div className="auth-page">
+      {isLoading
+        ? <Loader />
+        : <form className="auth-form login-form">
+          <h2>Login</h2>
+          <input
+            value={signinEmail}
+            onChange={(e) => setSigninEmail(e.target.value)}
+            type="text"
+            placeholder="Email"
+            className="input-field"
+          />
+          <input
+            value={signinPassword}
+            onChange={(e) => setSigninPassword(e.target.value)}
+            type="password"
+            placeholder="Password"
+            className="input-field"
+          />
+          <button onClick={handleLoginClick} className="auth-button">
+            {
+              isLoading ? 'Loading....' : 'Login'
+            }
+          </button>
+          <button type="button" onClick={() => navigate("/signup")}>
+            Sign Up
+          </button>
+        </form>
+      }
     </div>
   );
 };
