@@ -14,6 +14,10 @@ const movieSchema = new mongoose.Schema({
     movieUrl: {
         type: String, 
         required: true
+    },
+    isPaid: {
+        type: Boolean,
+        default: false 
     }
 })
 

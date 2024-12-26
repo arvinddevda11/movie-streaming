@@ -283,3 +283,7 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+.paid-movie {
+  border: 5px solid red;
+}
