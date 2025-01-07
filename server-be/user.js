@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
     otp: {
         type: String
     },
-    isSubscibed: {
+    isSubscribed: {
         type: Boolean,
         default: false
     },
