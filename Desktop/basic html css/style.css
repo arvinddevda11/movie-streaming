@@ -1,0 +1,34 @@
+.nav-bar-container {
+    border: 1px solid black;
+    border-radius: 50px;
+    margin: 20px;
+    padding: 10px;
+    background-color: #d9e4e3;
+}
+
+.nav-bar {
+
+    border-radius: 2px;
+    justify-content: space-between;
+    display: flex;
+    font-size: 20px;
+    color: rgb(19, 19, 19);
+}
+
+.nav-options {
+    background-color: aliceblue;
+    /* border: 1px solid black; */
+    border-radius: 50px;
+    padding: 7px 15px;
+    font-family: sans-serif;
+}
+
+.button {
+    margin-left: 100px;
+    font-weight: bolder;
+    background-color: red;
+    border: 1px solid black;
+    border-radius: 50px;
+    padding: 6px 15px;
+    color: aliceblue;
+}
