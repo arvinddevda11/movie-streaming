@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Animation</title>
+    <style>
+        .container2 {
+    height: 124px;
+    width: 100%;
+    margin-top: 90px;
+    overflow: hidden;
+    display: flex;
+    background-color: #F5F5F7;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+}
+
+.sliding-text {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    border: 1px solid transparent;
+    animation-name: ltr;
+    animation-duration: 10s;
+    animation-play-state: running;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    height: 30px;
+    text-wrap: no-wrap;
+}
+.sliding-text:hover {
+    cursor: pointer;
+    animation-play-state: paused;
+    color: violet;
+}
+p {
+    width: max-content;
+}
+
+.text-animation {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 14px;
+    padding-right: 100px;
+}
+
+@keyframes ltr {
+    0% {
+        transform: translateX(0px);
+        /* Start off-screen to the left */
+    }
+
+    100% {
+        /* Move to the center of the container */
+        transform: translateX(-50%) translateY(0%);
+        /*Adjust for proper centering*/
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container2">
+        <div class="sliding-text">
+            <p class="text-animation"><span>My name is Arvind</span></p>
+            <p class="text-animation"><span>I am learn coding</span></p>
+            <p class="text-animation"><span>My name is Arvind</span></p>
+            <p class="text-animation"><span>I am learn coding</span></p>
+        </div>
+    </div>
+</body>
+</html>
